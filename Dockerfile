@@ -11,7 +11,7 @@ ENV PYTHONUNBUFFERED 1
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip
 
-# Copy requirements file, install them and remove the file
+# Copy requirements files (dev if required), install them and remove the files
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 ARG DEV=false
