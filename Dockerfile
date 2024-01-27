@@ -7,9 +7,12 @@ LABEL maintainer="Jonathan Sasse <jonathan.sasse@outlook.de>"
 # Set Python to run in unbuffered mode
 ENV PYTHONUNBUFFERED 1
 
-# Install dependencies
+# Install dependencies and add temporary build dependencies
 RUN python -m venv /py && \
-    /py/bin/pip install --upgrade pip
+    /py/bin/pip install --upgrade pip && \
+    apk add --update --no-cache postgresql-client && \
+    apk add --update --no-cache --virtual .tmp-build-deps \
+        build-base postgresql-dev musl-dev
 
 # Copy requirements files (dev if required), install them and remove the files
 COPY ./requirements.txt /tmp/requirements.txt
@@ -19,7 +22,8 @@ RUN /py/bin/pip install -r /tmp/requirements.txt && \
     if [ $DEV = 'true' ] ; \ 
         then /py/bin/pip install -r /tmp/requirements.dev.txt ; \
     fi && \
-    rm -rf /tmp
+    rm -rf /tmp && \
+    apk del .tmp-build-deps
 
 # Add a user for our application
 RUN adduser \
