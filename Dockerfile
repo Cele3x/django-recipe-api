@@ -12,7 +12,7 @@ RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
     apk add --update --no-cache postgresql-client jpeg-dev && \
     apk add --update --no-cache --virtual .tmp-build-deps \
-        build-base postgresql-dev musl-dev zlib zlib-dev
+        build-base postgresql-dev musl-dev zlib zlib-dev linux-headers
 
 # Copy requirements files (dev if required), install them and remove the files
 COPY ./requirements.txt /tmp/requirements.txt
@@ -31,6 +31,10 @@ RUN adduser \
     --no-create-home \
     django-user
 
+# Add scripts
+COPY ./scripts /scripts
+RUN chmod -R +x /scripts
+
 # Create directories for our static files
 RUN mkdir -p /vol/web/media && \
     mkdir -p /vol/web/static && \
@@ -38,7 +42,7 @@ RUN mkdir -p /vol/web/media && \
     chmod -R 755 /vol
 
 # Set environment variables
-ENV PATH="/py/bin:$PATH"
+ENV PATH="/scripts:/py/bin:$PATH"
 
 # Switch to the new user
 USER django-user
@@ -49,3 +53,6 @@ COPY ./app /app
 
 # Expose the port the app runs on
 EXPOSE 8000
+
+# Run the application
+CMD ["run.sh"]
